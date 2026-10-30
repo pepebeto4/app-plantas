@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Plantas",
+    "slug": "app-plantas",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.plantasbormujos.riego",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "plugins": [
+      ["expo-notifications", { "enableRemoteNotifications": false }]
+    ]
+  }
+}

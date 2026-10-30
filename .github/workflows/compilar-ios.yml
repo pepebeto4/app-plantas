@@ -1,0 +1,91 @@
+name: Compilar iOS
+
+# Genera un IPA sin firmar de la app. Se firma después en tu PC con Sideloadly y tu Apple ID.
+# Ejecución manual: pestaña Actions > Compilar iOS > Run workflow.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-26
+    timeout-minutes: 75
+    env:
+      CI: "1"
+      EXPO_NO_TELEMETRY: "1"
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Versiones de las herramientas
+        run: |
+          xcodebuild -version
+          node --version
+          pod --version
+
+      - name: Instalar dependencias
+        run: |
+          SPEC=$(node -p "(require('./package.json').dependencies || {}).expo || 'latest'")
+          echo "Versión de Expo: $SPEC"
+          npm install "expo@$SPEC"
+          npx expo install react react-native expo-status-bar expo-notifications @react-native-async-storage/async-storage react-native-safe-area-context react-native-webview
+          npx expo install typescript @types/react -- --save-dev
+          npm install three@0.128.0
+          node scripts/generar-escena.js
+
+      - name: Generar el proyecto de iOS
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Compilar sin firma
+        run: |
+          WS=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          echo "Workspace: $WS  Esquema: $SCHEME"
+          xcodebuild \
+            -workspace "$WS" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Plantas.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            archive > "$RUNNER_TEMP/xcodebuild.log" 2>&1 || {
+              echo "La compilación falló. Últimas líneas del registro:"
+              tail -n 120 "$RUNNER_TEMP/xcodebuild.log"
+              exit 1
+            }
+          tail -n 5 "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: Empaquetar el IPA
+        run: |
+          APP=$(find "$RUNNER_TEMP/Plantas.xcarchive/Products/Applications" -maxdepth 1 -name "*.app" | head -1)
+          echo "Aplicación: $APP"
+          mkdir -p "$RUNNER_TEMP/ipa/Payload"
+          cp -R "$APP" "$RUNNER_TEMP/ipa/Payload/"
+          (cd "$RUNNER_TEMP/ipa" && zip -qry "$GITHUB_WORKSPACE/Plantas.ipa" Payload)
+          ls -lh "$GITHUB_WORKSPACE/Plantas.ipa"
+
+      - name: Guardar el IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Plantas-ipa
+          path: Plantas.ipa
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Guardar el registro si falló
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registro-compilacion
+          path: ${{ runner.temp }}/xcodebuild.log
+          retention-days: 7
+          if-no-files-found: ignore

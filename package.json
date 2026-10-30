@@ -1,0 +1,14 @@
+{
+  "name": "app-plantas",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "prestart": "node scripts/generar-escena.js",
+    "escena": "node scripts/generar-escena.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

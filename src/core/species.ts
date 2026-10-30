@@ -1,0 +1,55 @@
+import type { Species, SpeciesId } from "./types";
+
+// Valores iniciales orientativos para interior. Se calibran con el historial real.
+export const SPECIES: Record<SpeciesId, Species> = {
+  spathiphyllum: {
+    id: "spathiphyllum",
+    nombre: "Espatifilo",
+    intervaloVerano: 5,
+    intervaloInvierno: 9,
+    dliMin: 2,
+    dliIdeal: 5,
+    toleranciaSequia: 0.2,
+    señalSed: "Hojas caídas; se recupera en horas tras regar",
+  },
+  monstera_adansonii: {
+    id: "monstera_adansonii",
+    nombre: "Monstera adansonii",
+    intervaloVerano: 7,
+    intervaloInvierno: 12,
+    dliMin: 3,
+    dliIdeal: 7,
+    toleranciaSequia: 0.4,
+    señalSed: "Primeros 2-3 cm de sustrato secos",
+  },
+  epipremnum: {
+    id: "epipremnum",
+    nombre: "Poto",
+    intervaloVerano: 8,
+    intervaloInvierno: 14,
+    dliMin: 1.5,
+    dliIdeal: 5,
+    toleranciaSequia: 0.6,
+    señalSed: "Mitad superior del sustrato seca; hojas algo blandas",
+  },
+  sansevieria: {
+    id: "sansevieria",
+    nombre: "Lengua de suegra",
+    intervaloVerano: 18,
+    intervaloInvierno: 35,
+    dliMin: 0.8,
+    dliIdeal: 6,
+    toleranciaSequia: 0.95,
+    señalSed: "Sustrato totalmente seco; hojas ligeramente arrugadas",
+  },
+  dypsis_lutescens: {
+    id: "dypsis_lutescens",
+    nombre: "Areca",
+    intervaloVerano: 5,
+    intervaloInvierno: 9,
+    dliMin: 4,
+    dliIdeal: 9,
+    toleranciaSequia: 0.25,
+    señalSed: "Primeros 2 cm secos; puntas marrones si se repite",
+  },
+};
